@@ -1,47 +1,66 @@
-#include <Arduino.h>
-#include "HCPCA9685.h"
- 
-#define  I2CAdd 0x40
-HCPCA9685 HCPCA9685(I2CAdd);
+//  by Brandon Plumbo AKA Riftliger
+//  original version from Martyn Currey http://www.martyncurrey.com/
+//  HC-05 universal test sketch to enter AT-commands
+//  Uses hardware serial to talk to the host computer and software serial for communication with the bluetooth module
+//
+//  Pins
+//  BT VCC to Arduino 5V out.
+//  BT GND to GND
+//  Arduino D11 to BT RX
+//  Arduino D10 BT TX
+//
+//  When a command is entered in the serial monitor on the computer
+//  the Arduino will relay it to the bluetooth module and display the result.
+//
+//  The HC-05 modules require both CR and NL
 
-int kickstand_servo = 0;
-int left_servo = 1;
-int right_servo = 2;
+#include <SoftwareSerial.h>
+SoftwareSerial BTSerial(10, 11); //  TX,RX
 
-void park(){
-  HCPCA9685.Servo(kickstand_servo, 90);
-  HCPCA9685.Servo(left_servo, 90);
-  HCPCA9685.Servo(right_servo, 90);
-}
+char c = ' ';
+boolean NL = true;
 
-void forward(){
-  HCPCA9685.Servo(left_servo, 200);
-  HCPCA9685.Servo(right_servo, 200);
-}
+void setup()
+{
 
-void backward(){
-  HCPCA9685.Servo(left_servo, -10);
-  HCPCA9685.Servo(right_servo, -10);
-}
+  Serial.begin(9600);
+  Serial.println("Sketch HC-05");
+  Serial.println("Arduino with HC-05 is ready");
+  Serial.println("Make sure Both NL & CR are set");
+  Serial.println("");
 
-void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-  HCPCA9685.Init(SERVO_MODE);
-  HCPCA9685.Sleep(false);
-  park();
-}
-
-void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(200);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(200);  
-  forward();
-  delay(200);
-  digitalWrite(LED_BUILTIN, HIGH);
+  //Set to HC-05 default baud rate, found using AT+UART.  It is usually 38400.
+  BTSerial.begin(38400);
+  Serial.println("BTserial started at 38400");
+  Serial.println("");
   
-  delay(3000);
-  backward();
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(3000);
 }
+
+void loop()
+{
+
+  // Read from the Bluetooth module and send to the Arduino Serial Monitor
+  if (BTSerial.available())
+  {
+    c = BTSerial.read();
+    Serial.write(c);
+  }
+
+  // Read from the Serial Monitor and send to the Bluetooth module
+  if (Serial.available())
+  {
+    c = Serial.read();
+    BTSerial.write(c);
+
+    // Echo the user input to the main window. The ">" character indicates the user entered text.
+    if (NL) {
+      Serial.print(">");
+      NL = false;
+    }
+    Serial.write(c);
+    if (c == 10) {
+      NL = true;
+    }
+  }
+}
+
