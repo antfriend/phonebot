@@ -9,8 +9,8 @@ int rightPotentiometer = A3;
 int rightPotentiometerValue = 0;
 
 void setup() {
-
-  Serial.begin(9600);
+  pinMode(LED_BUILTIN, OUTPUT);
+  //Serial.begin(9600);
   BTserial.begin(38400);
 //  while (!Serial) {
 //    ; // wait for serial port to connect. Needed for Native USB only
@@ -19,14 +19,18 @@ void setup() {
 }
 
 void loop() {
-
+  digitalWrite(LED_BUILTIN, HIGH);
   leftPotentiometerValue = analogRead(leftPotentiometer);
-  //Serial.println(leftPotentiometerValue);
-  BTserial.write(leftPotentiometerValue);
-  delay(20);
   middlePotentiometerValue = analogRead(middlePotentiometer);
-  delay(20);
   rightPotentiometerValue = analogRead(rightPotentiometer);
-  delay(20);
   
+  String mess = "l" + String(leftPotentiometerValue) + "m" + String(middlePotentiometerValue) + "r" + String(rightPotentiometerValue);
+  BTserial.print(mess);//this works but no line ending
+  BTserial.print(".");
+  //delay(10);
+  
+  //BTserial.write(mess);//can't write a string
+  //BTserial.println(mess);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(500);
 }

@@ -11,6 +11,7 @@ int left_servo = 1;
 int right_servo = 2;
 
 int state = 0;
+bool isAvailable = false;
 
 void wakeup(){
   HCPCA9685.Sleep(false);
@@ -33,33 +34,49 @@ void counterclockwise(){
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for Native USB only
-  }
-  Serial.println("Blarg!");
+//  while (!Serial) {
+//    ; // wait for serial port to connect. Needed for Native USB only
+//  }
+  Serial.println("begin");
   BTserial.begin(38400);
 
-  if (BTserial.available() > 0) { // Checks whether data is comming from the serial port
-    state = BTserial.read(); // Reads the data from the serial port
-  }
-  
   pinMode(LED_BUILTIN, OUTPUT);
   HCPCA9685.Init(SERVO_MODE);
-  
   wakeup();
 }
 
+String mess = "";
+
 void loop() {
-  if (BTserial.available() > 0) { // Checks whether data is comming from the serial port
-    state = BTserial.read(); // Reads the data from the serial port
+  while (BTserial.available() > 0) {
+    digitalWrite(LED_BUILTIN, HIGH);
+    isAvailable = true;
+    char aChar = BTserial.read();
+    if(aChar == '.'){
+      Serial.println(". ");
+    }
+    mess = mess + aChar;
+    //Serial.println("here");
+    Serial.print(aChar);
+    //Serial.println(BTserial.readString());
+    //Serial.write(BTserial.read());//this works, but one character at a time
+    
+    //Serial.println(BTserial.read());
+    
+    //Serial.println(" ");
+    //state = BTserial.parseInt();
     //Serial.println("state=");
     //Serial.println(state);
-    Serial.println(state);
-    clockwise(state);
-  }else{
-    delay(100);
+    //
+    
+    //clockwise(state);
   }
-  delay(20); 
+  
+  if(isAvailable){
+    digitalWrite(LED_BUILTIN, LOW);
+    //Serial.println(" ");
+    isAvailable = false;
+  }
   
 //  digitalWrite(LED_BUILTIN, HIGH);
 //  delay(200);
