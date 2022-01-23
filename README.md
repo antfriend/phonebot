@@ -1,6 +1,12 @@
 # phonebot
 
- AT+ADDR
-+ADDR:14:3:50927
-OK
+Open Serial Monitor
 
+AT
+AT+UART
+
+AT+ORGL
+
+AT+ROLE=1
+
+AT+BIND=14,3,50927

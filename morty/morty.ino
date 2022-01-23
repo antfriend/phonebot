@@ -20,8 +20,27 @@ void wakeup(){
   HCPCA9685.Servo(right_servo, 90);
 }
 
+void leftWheel(int whatWhere){
+  whatWhere = map(whatWhere, 0, 1024, 0, 440);
+  //Serial.println(String(whatWhere));
+  HCPCA9685.Servo(left_servo, whatWhere);  
+}
+
+void rightWheel(int whatWhere){
+  whatWhere = map(whatWhere, 0, 1024, 0, 440);
+  //Serial.println(String(whatWhere));
+  HCPCA9685.Servo(right_servo, whatWhere);  
+}
+
+void middleKickstand(int whatWhere){
+  whatWhere = map(whatWhere, 0, 1024, -20, 350);
+  Serial.println(String(whatWhere));
+  HCPCA9685.Servo(kickstand_servo, whatWhere);  
+}
+
 void clockwise(int howmuch){
-  //howmuch = map(howmuch, 0, 1024, 0, 200);
+  howmuch = map(howmuch, 0, 1024, 0, 440);
+  Serial.println(String(howmuch));
   //howmuch = constrain(howmuch, 0, 200);
   HCPCA9685.Servo(left_servo, howmuch);
   HCPCA9685.Servo(right_servo, howmuch);
@@ -42,52 +61,53 @@ void setup() {
 
   pinMode(LED_BUILTIN, OUTPUT);
   HCPCA9685.Init(SERVO_MODE);
-  wakeup();
+  HCPCA9685.Sleep(false);
+  //wakeup();
 }
 
 String mess = "";
+String lefty = "";
+String middlin = "";
+String righty = "";
 
 void loop() {
   while (BTserial.available() > 0) {
-    digitalWrite(LED_BUILTIN, HIGH);
-    isAvailable = true;
-    char aChar = BTserial.read();
-    if(aChar == '.'){
-      Serial.println(". ");
+    if(!isAvailable){
+      digitalWrite(LED_BUILTIN, HIGH);
+      isAvailable = true;
     }
-    mess = mess + aChar;
-    //Serial.println("here");
-    Serial.print(aChar);
-    //Serial.println(BTserial.readString());
-    //Serial.write(BTserial.read());//this works, but one character at a time
+    char aChar = BTserial.read();
     
-    //Serial.println(BTserial.read());
-    
-    //Serial.println(" ");
-    //state = BTserial.parseInt();
-    //Serial.println("state=");
-    //Serial.println(state);
-    //
-    
-    //clockwise(state);
+    switch (aChar) {
+         case '.':
+          leftWheel(mess.toInt());
+          
+          mess = "";
+          break;
+             
+         case 'l':
+             //Serial.println(mess);
+             mess = "";
+             break;
+             
+         case 'm':
+             rightWheel(mess.toInt());
+             mess = "";
+             break;
+             
+         case 'r':
+             middleKickstand(mess.toInt());
+             mess = "";
+             break;
+             
+         default:
+             mess = mess + aChar;
+      }
   }
   
   if(isAvailable){
     digitalWrite(LED_BUILTIN, LOW);
-    //Serial.println(" ");
     isAvailable = false;
   }
-  
-//  digitalWrite(LED_BUILTIN, HIGH);
-//  delay(200);
-//  digitalWrite(LED_BUILTIN, LOW);
-//  delay(200); 
-  
-//  delay(200);
-//  digitalWrite(LED_BUILTIN, HIGH);
-//  
-//  delay(500);
-//  counterclockwise();
-//  digitalWrite(LED_BUILTIN, LOW);
-//  delay(500);
+
 }
