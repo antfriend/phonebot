@@ -20,8 +20,8 @@ void wakeup(){
 }
 
 void clockwise(int howmuch){
-  howmuch = map(howmuch, 0, 1024, 0, 200);
-  howmuch = constrain(howmuch, 0, 200);
+  //howmuch = map(howmuch, 0, 1024, 0, 200);
+  //howmuch = constrain(howmuch, 0, 200);
   HCPCA9685.Servo(left_servo, howmuch);
   HCPCA9685.Servo(right_servo, howmuch);
 }
