@@ -1,24 +1,26 @@
+
+
 #include <Arduino.h>
-#include "HCPCA9685.h"
+#include <ServoEasing.hpp>
+//#include "HCPCA9685.h"
 #include <SoftwareSerial.h>
 SoftwareSerial BTserial(10, 11);
 
 #define  I2CAdd 0x40
-HCPCA9685 HCPCA9685(I2CAdd);
+//HCPCA9685 HCPCA9685(I2CAdd);
 
 int kickstand_servo = 0;
 int left_servo = 1;
 int right_servo = 2;
 
-int state = 0;
 bool isAvailable = false;
 
-void wakeup(){
-  HCPCA9685.Sleep(false);
-  HCPCA9685.Servo(kickstand_servo, 180);
-  HCPCA9685.Servo(left_servo, 90);
-  HCPCA9685.Servo(right_servo, 90);
-}
+//void wakeup(){
+//  HCPCA9685.Sleep(false);
+//  HCPCA9685.Servo(kickstand_servo, 180);
+//  HCPCA9685.Servo(left_servo, 90);
+//  HCPCA9685.Servo(right_servo, 90);
+//}
 
 void leftWheel(int whatWhere){
   whatWhere = map(whatWhere, 0, 1024, 0, 440);
@@ -38,18 +40,20 @@ void middleKickstand(int whatWhere){
   HCPCA9685.Servo(kickstand_servo, whatWhere);  
 }
 
-void clockwise(int howmuch){
-  howmuch = map(howmuch, 0, 1024, 0, 440);
-  Serial.println(String(howmuch));
-  //howmuch = constrain(howmuch, 0, 200);
-  HCPCA9685.Servo(left_servo, howmuch);
-  HCPCA9685.Servo(right_servo, howmuch);
-}
+//void clockwise(int howmuch){
+//  howmuch = map(howmuch, 0, 1024, 0, 440);
+//  Serial.println(String(howmuch));
+//  //howmuch = constrain(howmuch, 0, 200);
+//  HCPCA9685.Servo(left_servo, howmuch);
+//  HCPCA9685.Servo(right_servo, howmuch);
+//}
 
-void counterclockwise(){
-  HCPCA9685.Servo(left_servo, 10);
-  HCPCA9685.Servo(right_servo, 10);
-}
+//counterclockwise(){
+//  HCPCA9685.Servo(left_servo, 10);
+//  HCPCA9685.Servo(right_servo, 10);
+//}
+
+ServoEasing Servo1;
 
 void setup() {
   Serial.begin(9600);
@@ -60,8 +64,13 @@ void setup() {
   BTserial.begin(38400);
 
   pinMode(LED_BUILTIN, OUTPUT);
-  HCPCA9685.Init(SERVO_MODE);
-  HCPCA9685.Sleep(false);
+
+  if (Servo1.attach(SERVO1_PIN, START_DEGREE_VALUE) == INVALID_SERVO) {
+      Serial.println(F("Error attaching servo"));
+  }
+  
+  //HCPCA9685.Init(SERVO_MODE);
+  //HCPCA9685.Sleep(false);
   //wakeup();
 }
 
