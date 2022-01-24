@@ -77,7 +77,6 @@ void loop() {
       isAvailable = true;
     }
     char aChar = BTserial.read();
-    
     switch (aChar) {
          case '.':
           leftWheel(mess.toInt());
