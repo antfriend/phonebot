@@ -32,5 +32,5 @@ void loop() {
   //BTserial.write(mess);//can't write a string
   //BTserial.println(mess);
   digitalWrite(LED_BUILTIN, LOW);
-  delay(50);
+  delay(100);
 }
