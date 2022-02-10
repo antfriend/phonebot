@@ -24,11 +24,13 @@ bool imAwake = false;
 #define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
-
 void wakeup(){
   if(!imAwake){
     imAwake = true;
     pwm.wakeup();
+//    if(!useSerialMonitor){
+//      pwm.wakeup();
+//    }
   }
 }
 
@@ -40,28 +42,34 @@ void sleep(){
 }
 
 void rightKnob(int whatWhere){ 
-  whatWhere = map(whatWhere, 0, 1024, 20, 300);
+  whatWhere = map(whatWhere, 0, 1024, 100, 500);
   if(useSerialMonitor){
-    //Serial.println(String(whatWhere));
+    //Serial.println(String(whatWhere));//302 @high_end of off
+    //400 @high_end_top_speed
   }
   pwm.setPWM(left_servo, 0, whatWhere); 
+  //pwm.setPWM(right_servo, 0, whatWhere); 
 }
 
-void rightWheel(int whatWhere){
-  whatWhere = map(whatWhere, 0, 1024, 20, 300);
-  //Serial.println(String(whatWhere));
+void leftKnob(int whatWhere){
+  whatWhere = map(whatWhere, 0, 1024, 100, 500);
+  Serial.println(String(whatWhere));//284 @downpresser_end of off
   pwm.setPWM(right_servo, 0, whatWhere); 
+  //pwm.setPWM(left_servo, 0, map(whatWhere, 500, 100, 100, 500)); 
 }
 
 void middleKickstand(int whatWhere){
-  whatWhere = map(whatWhere, 0, 1024, 20, 300);
-  //Serial.println(String(whatWhere));
+  whatWhere = map(whatWhere, 0, 1024, 60, 280);
+  Serial.println(String(whatWhere));//66 @full_morty
   pwm.setPWM(kickstand_servo, 0, whatWhere);
 }
 
 void checkVoltage(){
   volt_meterValue = analogRead(volt_meter);
-  Serial.println(String(volt_meterValue));
+  //Serial.println(String(volt_meterValue));//430 @usb_power
+  /*
+    430 @usb_power
+   */
 }
 
 void setup() {
@@ -97,6 +105,10 @@ void loop() {
       wakeup();
     }
     char aChar = BTserial.read();
+    /* 
+      this sequence strategy 
+      makes for a confusing switch
+      */
     switch (aChar) {
          case '.':
           rightKnob(mess.toInt());
@@ -109,7 +121,7 @@ void loop() {
              break;
              
          case 'm':
-             rightWheel(mess.toInt());
+             leftKnob(mess.toInt());
              mess = "";
              break;
              
