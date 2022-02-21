@@ -17,8 +17,8 @@ int right_servo_what = 0;
 int volt_meter = A3;
 int volt_meterValue = 0;
 
-int mid_point_upper = 305;
-int mid_point_lower = 285;
+int mid_point_upper = 306;
+int mid_point_lower = 284;
 
 int  unAvailabits= 0;
 bool isAvailable = false;
@@ -43,12 +43,14 @@ void wakeup(){
 void sleep(){
   if(imAwake){
     imAwake = false;
+    //pwm.setPWM(right_servo, 0, 0); 
+    //pwm.setPWM(left_servo, 0, 0); 
     pwm.sleep();
   }
 }
 
 int MapKnob2ContinuousServo(int whatWhere){
-  whatWhere = map(whatWhere, 0, 1024, 100, 500);
+  whatWhere = map(whatWhere, 0, 1024, 200, 400);
   //mid point map
   if(whatWhere < mid_point_upper){
     if(whatWhere > mid_point_lower){
@@ -59,11 +61,13 @@ int MapKnob2ContinuousServo(int whatWhere){
 }
 
 int MapInvertedKnob2ContinuousServo(int whatWhere){
-  whatWhere = map(whatWhere, 1024, 0, 100, 500);
+  whatWhere = map(whatWhere, 0, 1024, 200, 400);
+  whatWhere = map(whatWhere, 400, 200, 200, 400);
+  whatWhere = whatWhere - 15;
   //mid point map
   if(whatWhere < mid_point_upper){
     if(whatWhere > mid_point_lower){
-      whatWhere = 0;
+      return 0;
     }
   }
   return whatWhere;
@@ -117,35 +121,12 @@ void rightKnob(int whatWhere){
 //          }
 //          
 //        }
-  
-
-  //}
-  
-  if(useSerialMonitor){
-    serialMonitorInc++;
-    if(serialMonitorInc > 10){
-      serialMonitorInc = 0;
-      //Serial.print("\e[2J");
-      Serial.println(" ");
-      Serial.print(" left_servo_what ");
-      Serial.println(String(left_servo_what));    
-      Serial.print("       whatWhere ");
-      Serial.println(String(whatWhere));//284 @downpresser_end of off
-      Serial.print("right_servo_what ");
-      Serial.println(String(right_servo_what));  
-      Serial.print(" volt_meterValue ");
-      Serial.println(String(volt_meterValue));//430 @usb_power  
-      Serial.print("   imUnconscious ");
-      Serial.println(String(imUnconscious));
-      Serial.print(" kickstand_servo ");
-      Serial.println(String(kickstand_servo));          
-    }
-  }
-  
+  //}  
 }
 
-void middleKickstand(int whatWhere){
-  whatWhere = map(whatWhere, 0, 1024, 60, 280);
+void middleKickstand(int whatWhere)
+{//                    knob 10  0
+  whatWhere = map(whatWhere, 0, 1024, 50, 250);
   //Serial.println(String(whatWhere));//66 @full_morty
   pwm.setPWM(kickstand_servo, 0, whatWhere);
 }
@@ -187,6 +168,14 @@ void setup() {
 
 String mess = "";
 
+String MyStateOfMind(){
+  if(imUnconscious){
+    return "sleeping";
+  }else{
+    return "I am at your service!";
+  }
+}
+
 void loop() {
   isAvailable = false;
   while (BTserial.available() > 0) {
@@ -206,8 +195,28 @@ void loop() {
          case '.':
           rightKnob(mess.toInt());
           mess = "";
-          pwm.setPWM(right_servo, 0, right_servo_what); 
-          pwm.setPWM(left_servo, 0, left_servo_what); 
+          if(!imUnconscious){
+            pwm.setPWM(right_servo, 0, right_servo_what); 
+            pwm.setPWM(left_servo, 0, left_servo_what);             
+          }
+          if(useSerialMonitor){
+            serialMonitorInc++;
+            if(serialMonitorInc > 10){
+              serialMonitorInc = 0;
+              //Serial.print("\e[2J");
+              Serial.println(" ");
+              Serial.print(" left_servo_what ");
+              Serial.println(String(left_servo_what));    
+              Serial.print("right_servo_what ");
+              Serial.println(String(right_servo_what));  
+              Serial.print(" volt_meterValue ");
+              Serial.println(String(volt_meterValue));//430 @usb_power  
+              Serial.print("   imUnconscious ");
+              Serial.println(MyStateOfMind());
+              Serial.print(" kickstand_servo ");
+              Serial.println(String(kickstand_servo));          
+            }
+          }
           checkVoltage();
           break;
              
@@ -238,7 +247,7 @@ void loop() {
     unAvailabits++;
     if(unAvailabits > 10){
       unAvailabits = 0;
-      sleep();
+      //sleep();
     }
   }
 
