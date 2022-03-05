@@ -90,7 +90,7 @@ void leftKnob(int whatWhere){
 void rightKnob(int whatWhere){
   if(left_servo_what == 0){
     //left knob neutral
-    whatWhere = MapKnob2ContinuousServo(whatWhere);
+    whatWhere = MapInvertedKnob2ContinuousServo(whatWhere);
     left_servo_what = whatWhere;
     right_servo_what = whatWhere;
   }
